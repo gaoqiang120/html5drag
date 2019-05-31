@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Transfer Example</title>
+    <script type="text/javascript" src="EventUtil.js"></script>
+</head>
+<body>
+    <p>Try dragging the link over to the red square. This won't work correctly in Opera.</p>
+    <div id="dragtarget" draggable="true">111111111</div>
+    <a href="http://www.wrox.com">Wrox homepage</a>
+    <div style="width: 100px; height: 100px; float: right; background: red" id="droptarget"></div>
+    <div id="output"></div>
+    <script type="text/javascript">
+
+        var dragtarget= document.getElementById("dragtarget");
+
+        function handleSetData(event){
+
+            event.dataTransfer.effectAllowed="all" ;
+            if(event.dataTransfer&&event.dataTransfer.setData){
+                event.dataTransfer.setData('text','aaa');
+                event.dataTransfer.setData('url','baidu.com') || event.dataTransfer.setData('text/uri-list','baidu.com');
+                event.dataTransfer.setData('abc','abcd');
+            }
+        }
+
+        if(dragtarget.addEventListener){
+            dragtarget.addEventListener('dragstart',handleSetData,false)
+        }
+
+        var droptarget = document.getElementById("droptarget");
+        
+        function handleEvent(event){
+            document.getElementById("output").innerHTML += event.type + "<br>";
+            const dt=event.dataTransfer;
+            switch(event.type){
+                case "drop":
+                case "dragdrop":
+                    // droptarget.innerHTML = dt.getData("url") || dt.getData("text/uri-list") || dt.getData("text");
+                    console.log(dt.getData('abc'))
+                    /* falls through */
+
+                case "dragenter":
+
+                case "dragover":
+                    event.dataTransfer.dropEffect = "link";
+                    EventUtil.preventDefault(event);
+
+                    break;
+            }
+
+        }
+
+        EventUtil.addHandler(droptarget, "dragenter", handleEvent);
+        EventUtil.addHandler(droptarget, "dragover", handleEvent);
+        EventUtil.addHandler(droptarget, "dragleave", handleEvent);
+        EventUtil.addHandler(droptarget, "drop", handleEvent);
+
+    </script>
+</body>
+</html>
