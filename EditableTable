@@ -89,7 +89,7 @@ classs EditableTable extends Component {
     const { hasVirtualRow = true } = this.props;
     
     if(hasVirtualRow){
-      if((value &&　))
+      if((value && value.length>0 &&　))
     }
   }
 }
