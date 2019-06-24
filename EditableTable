@@ -199,7 +199,6 @@ classs EditableTable extends Component {
         
         const realValue = record [column.dataIndex];
         const {beforeRender} =column;
-        
         if(beforeRender){
           beforeRender(realValue,props,record);
         }
@@ -210,9 +209,56 @@ classs EditableTable extends Component {
         :(<column.Control onChange={handleControlOnChange} />);
         
         let { controlOption } = column;
-        if(controlOption &&　controlOption)
-      }
-    })
+        if(controlOption &&　controlOption.rules && record.$__virtualRow) {
+          controlOption = lodash.cloneDeep(controlOption);
+          controlOption.rules.filter(a =>Object.prototype.hasOwnProperty.call(a,'required')).forEach(rule => {rule.required =false; });
+        }
+        
+        const valuePropName = column.Control.name === 'Checkbox' ? 'checked' : 'value';
+        
+        return(
+          <Form.Item>
+            {getFieldDecorator(fieldName,{...controlOption, ininialValue: realValue ,valuePropName})(control)}
+          </Form.Item>
+        );
+      };
+    });
+    
+    const operationColumn = {title : locale('@operation') ,align: 'center' , render: this.operationRender, key:'__operation'};
+    
+    if(operationWidth !==null ||operationWidth!== undefined ){
+      operationColumn.width = operationWidth;
+    }
+    
+    let newColumns = [];
+    if(notOperation){
+      newColumns = [...columns]
+    }else{
+      newColumns = [...columns,operationColumn];
+    }
+    const tableProps = {
+      className: `${styles.tableClass}`,
+      columns: newColumns.
+      dataSource: this.getVirtualData(),...otherProps,
+    };
+    
+    return (
+      <Table
+        {...tableProps}
+        components={{
+          body: {
+          row:DraggableBodyRow,
+          }
+        }}
+        ref={
+          const tableDom = findDOMNode(tableComonents);
+          this.$table=jquery(tableDom);
+          const tableBody = this.$table.find('.ant-table-body');
+          
+        }
+      >
+      
+    )
   }
 }
 
