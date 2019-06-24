@@ -85,7 +85,12 @@ classs EditableTable extends Component {
   }
   
   getVirtualData = () =>{
+    const { value } = this.state;
+    const { hasVirtualRow = true } = this.props;
     
+    if(hasVirtualRow){
+      if((value &&　))
+    }
   }
 }
 
