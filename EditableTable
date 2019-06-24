@@ -1,0 +1,91 @@
+import React , {Component} from 'react';
+import {findDomNode } from 'react-dom';
+import { Table, Checkbox ,Input, Popconfirm, Form } from 'antd';
+import { locale,localUniqueLong } from '@/utils/utils';
+import lodash from 'lodash';
+import { DragDropContext } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
+import DraggableBodyRow from '@/comonents/TableComponents/DraggableBodyRow';
+import jquery from 'jquery';
+
+import styles from './eritableTable';
+
+@Form.create()
+classs EditableTable extends Component {
+  state = { value:null };
+  
+  virtualRow = null;
+  
+  componentWillMount(){
+  
+    if(Object.prototype.hasOwnProperty.call(this.props,'value')){
+      const {value,bindValue} = this.props;
+      this.state.value = value && bindValue !== true ? value.map(a => ({...a})) : value;
+    } else if (Object.prototype.hasOwnProperty.call(this.props,'defaultValue')){
+      const {defaultValue,bindValue} = this.props;
+      this.state.value = defaultValue && bindValue !== true ? defaultValue.map(a => ({...a})) : defaultValue;
+    }
+    
+    const { formRef ,realRef ,form} =this.props;
+    if(lodash.isFunction(formRef)){
+      formRef(form);
+    } else if(lodash.isObject(formRef)){
+      formRef.current = form;
+    }
+    
+    if(lodash.isFunction(realRef)){
+      realRef(this);
+    } else if(lodash.isObject(realRef)){
+      realRef.current = form;
+    }
+  }
+  
+  // 只用到nextProps
+  componentWillUpdate(nextProps){
+    const { props } = this;
+    if(props.value === nextProps.value){
+      return;
+    }
+    
+    const {value , bindValue} =nextProps;
+    this.state.value = value && bindValue !== true ? value.map(a => ({ ...a })): value; 
+  }
+  
+  operationRender = (text, row ) => {
+    const that = this;
+    
+    if(row.$__virtualRow){
+      return null;
+    }
+    
+    const onConfirmHander = ( text , row ){
+      this.handleRowDeleteOnclick(row);
+    };
+    
+    return (
+      <Popconfirm title='' onConfirm = {onConfirmHander}>
+        <Icon type='delete' class={styles.iconButton} />
+      </Popconfirm>
+    );
+  };
+  
+  createRow = (tagVirtual = false) => {
+    const { value = [] } = this.state;
+    const {tableProps: { columns} } = this.props;
+    const newRow = { id: localUniqueLong((value || []).map(a => a.id))};
+    columns
+    .filter( a => a.controlOption && Object.prototype.hasOwnProperty.call(a.controlOption,'initialValue'))
+    .forEach( a => {newRow[a.dataIndex] = a.controlOption.initialValue;});
+    
+    if(tagVirtual){
+      newRow.$__virtualRow = true
+    }
+    
+    retuen newRow;
+  }
+  
+  getVirtualData = () =>{
+    
+  }
+}
+
