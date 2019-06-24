@@ -89,8 +89,130 @@ classs EditableTable extends Component {
     const { hasVirtualRow = true } = this.props;
     
     if(hasVirtualRow){
-      if((value && value.length>0 &&　))
+      if((value && value.length>0 && value.indexOf(this.virtualRow) > -1) || this.virtualRow === null) {
+        this.virtualRow = this.createRow(true);
+      }
+      
+      return value ? [...value, this.virtualRow] : [this.virtualRow];
+      
     }
+    
+    return [...(value||[])];
+  }
+  
+  handleRowDeleteOnClick = row => {
+    const { value } = this.state;
+    
+    const index = value.indexOf(row);
+    if(index>-1 && value && value.length > 0){
+      value.splice(index,1);
+    }
+    
+    this.handleChange();
+  }
+  
+  handleChange = changeRecord  => {
+    const {onchange,bindValue } = this.props;
+    value.splice(index,1);
+    
+    const isAppendNewRecord = changeRecord && (!value || value.indexOf(changeRecord) === -1);
+    const newValue = isAppendNewRecord ? [...( value || []),changeRecord] : value.map(a =>a);
+    
+    if(bindValue === true){
+      if(value & value.length > 0) {
+        value.splice(0, value.length);
+      }
+      newValue.forEach(a =>value.push(a));
+      this.setState({ value });
+    }
+    else{
+      this.setState({ value: newValue });
+    }
+    
+    if(onchang) {
+      onChange(newValue);
+    }
+  };
+  
+  moveRow = (dragIndex, hoverIndex) => {
+    const { value } = this.state;
+    const dragRow = value[dragIndex];
+    
+    value.splice(dragIndex, 1);
+    value.splice(hoverIndex, 0, dragRow);
+    
+    this.handkeChange();
+  }
+  
+  render() {
+    const {
+      tableProps : { columns , onClickRow, ...otherProps },
+      form: { getFieldDecorator },
+      notOpertion,
+      isCellRender,
+      selectedByClick,
+      fixedHeight,
+      operationWidth,
+      editorTableClassName,
+    } =this.props;
+    
+    const that = this;
+    columns.forEach(column =>{
+      if(!column.Control && column.render){
+        return;
+      }
+      
+      column.render = (value ,record , index) => {
+        if(isCellRender && isCellRender(column,value ,record , index) === false){
+         return '';
+        }
+        
+        if(!column.Control) {
+          return value;
+        }
+        
+        const controlProps = typeof(column.controlProps()) === 'function' ? column.controlProps(value ,record , index) :column.controlProps;
+        const { onChange, children, ...props} =this.props;
+        const fieldName = `row${record.id}__${column.dataIndex}`;
+        
+        const handleControlOnChange = function(controlValue, ...other){
+          if(column.Control === Input) {
+            record[column.dataIndex] = controlValue.target.value;
+          }
+          else if(column.Control === CheckBox) {
+            record[column.dataIndex] = controlValue.target.checked;
+          }
+          else{
+           record[column.dataIndex] = controlValue;
+          }
+          
+          if( Object.prototype.hasOwnProperty.call(record,'$__virtualRow')){
+            delete record.$__virtualRow;
+          }
+          
+          if(onChange){
+            onChange(controlValue,fieldName,record,column, ...others);
+          }
+          
+          that.handleChange(record);
+        };
+        
+        const realValue = record [column.dataIndex];
+        const {beforeRender} =column;
+        
+        if(beforeRender){
+          beforeRender(realValue,props,record);
+        }
+        
+        const realChildren = lodash.isFunction(children)? children(value,props,record):children;
+        const control=realChildren
+        ?(<column.Control onChange={handleControlOnChange} {...props}>{realChildren}</column.Control>)
+        :(<column.Control onChange={handleControlOnChange} />);
+        
+        let { controlOption } = column;
+        if(controlOption &&　controlOption)
+      }
+    })
   }
 }
 
